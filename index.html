@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>СИСТЕМА</title>
+    <style>
+        /* Сброс стилей */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #050505; /* Почти черный фон */
+            color: #33ff33; /* Зеленый текст, как на старых мониторах */
+            font-family: 'Courier New', Courier, monospace; /* Шрифт печатной машинки */
+            overflow: hidden;
+        }
+
+        /* Эффект старого монитора (шум и виньетка) */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Эффект строк развертки */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.03) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9;
+        }
+
+        /* Контейнер для контента */
+        .container {
+            padding: 50px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Верхняя строка с приветствием */
+        .header {
+            margin-bottom: 40px;
+            font-size: 18px;
+            text-shadow: 0 0 5px #33ff33;
+        }
+
+        /* Мигающий курсор */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #33ff33;
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Список папок */
+        .folder-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .folder-list li {
+            margin-bottom: 15px;
+        }
+
+        .folder-link {
+            color: #33ff33;
+            text-decoration: none;
+            font-size: 24px;
+            display: inline-block;
+            padding: 5px 10px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        /* Эффект при наведении на папку */
+        .folder-link:hover {
+            border: 1px solid #33ff33;
+            background-color: rgba(51, 255, 51, 0.1);
+            text-shadow: 0 0 10px #33ff33;
+        }
+
+        .folder-icon {
+            margin-right: 10px;
+        }
+
+        /* Скрытый текст, который появится при клике (пасхалка) */
+        .hidden-text {
+            display: none;
+            color: #ff3333; /* Красный цвет для опасности */
+            font-size: 16px;
+            margin-top: 20px;
+            text-shadow: 0 0 5px #ff3333;
+        }
+        
+        /* Класс, который включает отображение */
+        .show {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Эффекты монитора -->
+    <div class="scanlines"></div>
+
+    <div class="container">
+        <div class="header">
+            > СИСТЕМА ЗАГРУЖЕНА. ДОСТУП РАЗРЕШЕН.<br>
+            > ОЖИДАНИЕ КОМАНДЫ... <span class="cursor"></span>
+        </div>
+
+        <ul class="folder-list">
+            <!-- Папка 1 -->
+            <li>
+                <span class="folder-link" onclick="alert('Файлы не найдены. Данные повреждены.')">
+                    <span class="folder-icon">📁</span> ДОКУМЕНТЫ
+                </span>
+            </li>
+            
+            <!-- Папка 2 -->
+            <li>
+                <span class="folder-link" onclick="alert('Папка защищена паролем.')">
+                    <span class="folder-icon">📁</span> ПИСЬМА
+                </span>
+            </li>
+
+            <!-- Папка 3 (с пасхалкой) -->
+            <li>
+                <span class="folder-link" onclick="document.getElementById('secret-msg').classList.add('show')">
+                    <span class="folder-icon">📁</span> [ДАННЫЕ УДАЛЕНЫ]
+                </span>
+            </li>
+        </ul>
+
+        <!-- Скрытый блок (пасхалка) -->
+        <div id="secret-msg" class="hidden-text">
+            > ОШИБКА: ВЫ НЕ ДОЛЖНЫ БЫЛИ ЭТО ВИДЕТЬ.<br>
+            > ОН УЖЕ ЗДЕСЬ.
+        </div>
+    </div>
+
+</body>
+</html>

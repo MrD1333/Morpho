@@ -4,118 +4,91 @@
     <meta charset="UTF-8">
     <title>СИСТЕМА</title>
     <style>
-        /* Сброс стилей */
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background-color: #050505; /* Почти черный фон */
-            color: #33ff33; /* Зеленый текст, как на старых мониторах */
-            font-family: 'Courier New', Courier, monospace; /* Шрифт печатной машинки */
+            margin: 0; padding: 0; height: 100%;
+            background-color: #050505;
+            color: #33ff33;
+            font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
         }
 
-        /* Эффект старого монитора (шум и виньетка) */
+        /* Эффект виньетки */
         body::after {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none;
-            z-index: 10;
+            pointer-events: none; z-index: 10;
         }
 
-        /* Эффект строк развертки */
+        /* Строки развертки */
         .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.03) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9;
+            background-size: 100% 4px; pointer-events: none; z-index: 9;
         }
 
-        /* Контейнер для контента */
         .container {
-            padding: 50px;
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 5;
+            padding: 50px; max-width: 800px; margin: 0 auto;
+            position: relative; z-index: 5;
         }
 
-        /* Верхняя строка с приветствием */
         .header {
-            margin-bottom: 40px;
-            font-size: 18px;
-            text-shadow: 0 0 5px #33ff33;
+            margin-bottom: 30px; font-size: 18px; text-shadow: 0 0 5px #33ff33;
         }
 
-        /* Мигающий курсор */
         .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 20px;
-            background-color: #33ff33;
-            animation: blink 1s step-end infinite;
+            display: inline-block; width: 10px; height: 20px;
+            background-color: #33ff33; animation: blink 1s step-end infinite;
             vertical-align: bottom;
         }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        /* Список папок */
-        .folder-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .folder-list li {
-            margin-bottom: 15px;
-        }
+        .folder-list { list-style: none; padding: 0; }
+        .folder-list li { margin-bottom: 15px; }
 
         .folder-link {
-            color: #33ff33;
-            text-decoration: none;
-            font-size: 24px;
-            display: inline-block;
-            padding: 5px 10px;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-            cursor: pointer;
+            color: #33ff33; text-decoration: none; font-size: 24px;
+            display: inline-block; padding: 5px 10px; border: 1px solid transparent;
+            transition: all 0.2s; cursor: pointer;
         }
 
-        /* Эффект при наведении на папку */
         .folder-link:hover {
-            border: 1px solid #33ff33;
-            background-color: rgba(51, 255, 51, 0.1);
+            border: 1px solid #33ff33; background-color: rgba(51, 255, 51, 0.1);
             text-shadow: 0 0 10px #33ff33;
         }
 
-        .folder-icon {
-            margin-right: 10px;
+        /* Выпадающий список файлов */
+        .sub-files {
+            display: none; list-style: none; padding-left: 40px; margin-top: 10px;
         }
 
-        /* Скрытый текст, который появится при клике (пасхалка) */
-        .hidden-text {
-            display: none;
-            color: #ff3333; /* Красный цвет для опасности */
-            font-size: 16px;
-            margin-top: 20px;
-            text-shadow: 0 0 5px #ff3333;
+        .sub-files.active { display: block; }
+
+        .file-link {
+            color: #2299aa; /* Темно-бирюзовый для файлов */
+            text-decoration: none; font-size: 18px; cursor: pointer; display: block;
+            margin-bottom: 5px; transition: color 0.2s;
         }
         
-        /* Класс, который включает отображение */
-        .show {
-            display: block;
+        .file-link:hover { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
+
+        /* Терминал Бибибоу (Бирюзовый текст) */
+        .bob-terminal {
+            margin-top: 40px; font-size: 20px; color: #00ffff;
+            text-shadow: 0 0 8px #00ffff; height: 30px;
+            font-weight: bold; letter-spacing: 1px;
         }
+
+        .hidden-text {
+            display: none; color: #ff3333; font-size: 16px;
+            margin-top: 20px; text-shadow: 0 0 5px #ff3333;
+        }
+        .show { display: block; }
 
     </style>
 </head>
 <body>
 
-    <!-- Эффекты монитора -->
     <div class="scanlines"></div>
 
     <div class="container">
@@ -125,21 +98,24 @@
         </div>
 
         <ul class="folder-list">
-            <!-- Папка 1 -->
+            <!-- Папка 1 с битыми файлами -->
             <li>
-                <span class="folder-link" onclick="alert('Файлы не найдены. Данные повреждены.')">
+                <span class="folder-link" onclick="toggleFolder('docs-files')">
                     <span class="folder-icon">📁</span> ДОКУМЕНТЫ
                 </span>
+                <ul class="sub-files" id="docs-files">
+                    <li><span class="file-link" onclick="triggerBob()">fgh_j86_old.txt</span></li>
+                    <li><span class="file-link" onclick="triggerBob()">x_kl9_data.log</span></li>
+                    <li><span class="file-link" onclick="triggerBob()">sys_qw3_err.bin</span></li>
+                </ul>
             </li>
             
-            <!-- Папка 2 -->
             <li>
-                <span class="folder-link" onclick="alert('Папка защищена паролем.')">
+                <span class="folder-link" onclick="triggerBob()">
                     <span class="folder-icon">📁</span> ПИСЬМА
                 </span>
             </li>
 
-            <!-- Папка 3 (с пасхалкой) -->
             <li>
                 <span class="folder-link" onclick="document.getElementById('secret-msg').classList.add('show')">
                     <span class="folder-icon">📁</span> [ДАННЫЕ УДАЛЕНЫ]
@@ -152,7 +128,72 @@
             > ОШИБКА: ВЫ НЕ ДОЛЖНЫ БЫЛИ ЭТО ВИДЕТЬ.<br>
             > ОН УЖЕ ЗДЕСЬ.
         </div>
+
+        <!-- Терминал для Бибибоу -->
+        <div class="bob-terminal" id="bob-output"></div>
     </div>
 
+    <script>
+        // Переменные для логики
+        let clickCount = 0;
+        let clickTimer;
+
+        // Функция открытия/закрытия папки "ДОКУМЕНТЫ"
+        function toggleFolder(id) {
+            const folder = document.getElementById(id);
+            if (folder) folder.classList.toggle('active');
+        }
+
+        // Главная функция Бибибоу
+        function triggerBob() {
+            clickCount++;
+            clearTimeout(clickTimer);
+            
+            // Если кликнули слишком много раз (5 и больше)
+            if (clickCount >= 5) {
+                const sassyPhrases = [
+                    "Какой любопытный...",
+                    "нос у кого-то слишком длинный..."
+                ];
+                const randomSassy = sassyPhrases[Math.floor(Math.random() * sassyPhrases.length)];
+                typeText(randomSassy, true);
+                
+                // Сбрасываем счетчик после "злости"
+                clickCount = 0; 
+            } else {
+                // Обычное поведение
+                typeText("Бибибооо-оу", false);
+                
+                // Сбрасываем счетчик через 3 секунды бездействия
+                clickTimer = setTimeout(() => { clickCount = 0; }, 3000);
+            }
+        }
+
+        // Функция появления текста с анимацией точек
+        function typeText(text, isSassy) {
+            const terminal = document.getElementById('bob-output');
+            terminal.style.color = isSassy ? "#ff00ff" : "#00ffff"; // Если злится - фиолетовый, если нет - бирюзовый
+            terminal.style.textShadow = isSassy ? "0 0 8px #ff00ff" : "0 0 8px #00ffff";
+            
+            let dots = "";
+            let dotCount = 0;
+            
+            terminal.textContent = text;
+            
+            // Анимация точек
+            const dotInterval = setInterval(() => {
+                dotCount++;
+                if (dotCount > 3) dotCount = 1;
+                dots = ".".repeat(dotCount);
+                terminal.textContent = text + " " + dots;
+            }, 400);
+
+            // Останавливаем анимацию через 2.5 секунды
+            setTimeout(() => {
+                clearInterval(dotInterval);
+                terminal.textContent = text + "...";
+            }, 2500);
+        }
+    </script>
 </body>
 </html>

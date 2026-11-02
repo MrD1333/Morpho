@@ -125,8 +125,8 @@
 
         <!-- Скрытый блок (пасхалка) -->
         <div id="secret-msg" class="hidden-text">
-            > ОШИБКА: ВЫ НЕ ДОЛЖНЫ БЫЛИ ЭТО ВИДЕТЬ.<br>
-            > ОН УЖЕ ЗДЕСЬ.
+            > ОШИБКА: dfghgrfgfefgfdЬ.<br>
+            > ОН УdfgЖЕ ЗsdfЬ.
         </div>
 
         <!-- Терминал для Бибибоу -->
@@ -201,18 +201,15 @@
     <!-- Живой глаз Бибибоу -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Контур глаза (сделан шире и выше) -->
-            <path d="M 50 75 Q 125 5 200 75 Q 125 145 50 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+            <!-- Контур глаза (сделан более круглым и симметричным) -->
+            <path d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
             
             <!-- Зрачок -->
             <g id="pupil-group">
-                <!-- Внешнее кольцо зрачка -->
-                <circle cx="125" cy="75" r="20" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
-                <!-- Внутренняя точка -->
-                <circle id="pupil-center" cx="125" cy="75" r="8" fill="#00ffff" filter="url(#glow)"/>
+                <circle cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
+                <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>
             </g>
 
-            <!-- Эффект свечения -->
             <defs>
                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="4" result="blur" />
@@ -225,7 +222,7 @@
     <style>
         #bob-eye-container {
             position: fixed;
-            bottom: -10px; /* Чуть подняли */
+            bottom: -5px; 
             right: 20px;
             z-index: 20;
             pointer-events: none;
@@ -245,39 +242,44 @@
     </style>
 
     <script>
-        // 1. Логика слежения за мышкой
+        // Логика слежения за мышкой
         document.addEventListener('mousemove', function(e) {
             const pupil = document.getElementById('pupil-group');
             if (!pupil) return;
 
+            // Получаем координаты центра глаза на экране
             const eyeRect = document.getElementById('bob-eye-container').getBoundingClientRect();
-            const eyeCenterX = eyeRect.left + 125; // Центр глаза по X
-            const eyeCenterY = eyeRect.top + 75;   // Центр глаза по Y
+            const eyeCenterX = eyeRect.left + 125; // Центр SVG по X
+            const eyeCenterY = eyeRect.top + 75;   // Центр SVG по Y
 
+            // Вычисляем, куда движется мышка
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
             
-            // ВОТ ЗДЕСЬ МЫ УМЕНЬШИЛИ РАДИУС (было 25, стало 12)
-            // Это не даст зрачку вылезти за края
-            const distance = Math.min(12, Math.hypot(e.clientX - eyeCenterX, e.clientY - eyeCenterY) / 15);
-
-            const pupilX = Math.cos(angle) * distance;
-            const pupilY = Math.sin(angle) * distance;
+            // Задаем максимальную амплитуду движения (чтобы не вылезал)
+            // По X можно двигаться на 35 пикселей, по Y — только на 12 (из-за формы глаза)
+            const maxX = 35;
+            const maxY = 12;
+            
+            // Вычисляем, насколько сильно нужно сдвинуть зрачок в сторону мышки
+            // Используем косинус и синус, чтобы плавно ограничить движение по овалу
+            const pupilX = Math.cos(angle) * maxX;
+            const pupilY = Math.sin(angle) * maxY;
 
             pupil.style.transform = `translate(${pupilX}px, ${pupilY}px)`;
             pupil.style.transition = 'transform 0.1s ease-out';
         });
 
-        // 2. Логика сужения зрачка на запретные файлы
+        // Логика сужения зрачка на запретные файлы
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
         const pupilCenter = document.getElementById('pupil-center');
 
         if (forbiddenFolder && pupilCenter) {
             forbiddenFolder.addEventListener('mouseenter', () => {
-                pupilCenter.setAttribute('r', '3'); 
+                pupilCenter.setAttribute('r', '2'); 
                 pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
             });
             forbiddenFolder.addEventListener('mouseleave', () => {
-                pupilCenter.setAttribute('r', '8'); 
+                pupilCenter.setAttribute('r', '6'); 
                 pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; 
             });
         }

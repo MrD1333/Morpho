@@ -74,11 +74,12 @@
     <!-- ГЛАЗ -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
+            <!-- Обычный контур глаза -->
             <path id="eye-normal" d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
-            <g id="eye-happy" style="display: none;">
-                <path d="M 40 75 Q 125 20 210 75" fill="none" stroke="#00ffff" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
-                <path d="M 40 75 Q 125 110 210 75" fill="none" stroke="#00ffff" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
-            </g>
+            
+            <!-- Контур-дуга (Счастливый режим) - теперь это единая замкнутая форма-прищур -->
+            <path id="eye-happy" d="M 40 60 Q 125 120 210 60 Q 125 20 40 60 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" style="display: none;"/>
+
             <g id="pupil-group">
                 <circle id="pupil-ring" cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
                 <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -35,11 +35,18 @@
         @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
         
         /* Классы для зрачка */
-        #pupil-center { transition: r 0.3s ease, fill 0.3s ease; }
+        #pupil-center { transition: r 0.3s ease, fill 0.3s ease, transform 0.3s ease; }
         
-        /* РЕЖИМ "ДОВОЛЬНЫЙ" (СОЗДАТЕЛЬ) */
-        #bob-eye-container.happy-mode { transform: rotate(-5deg) scaleY(0.8) translateY(10px); }
-        #bob-eye-container.happy-mode #pupil-center { fill: #ff00ff; r: 10; filter: drop-shadow(0 0 10px #ff00ff); }
+        /* --- ЭФФЕКТ ДОВОЛЬНОГО ГЛАЗА (ДУГА) --- */
+        #bob-eye-container.happy-mode #eye-normal { display: none; }
+        #bob-eye-container.happy-mode #eye-happy { display: block; }
+        #bob-eye-container.happy-mode #pupil-ring { display: none; }
+        #bob-eye-container.happy-mode #pupil-center { 
+            fill: #ff00ff; 
+            r: 6; 
+            filter: drop-shadow(0 0 10px #ff00ff); 
+            transform: translateY(15px); /* Смещаем розовую точку вниз под дугу */
+        }
     </style>
 </head>
 <body>
@@ -67,9 +74,14 @@
     <!-- ГЛАЗ -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+            <!-- Обычный контур глаза -->
+            <path id="eye-normal" d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+            
+            <!-- Контур-дуга (для счастливого режима) -->
+            <path id="eye-happy" d="M 40 90 Q 125 40 210 90" fill="none" stroke="#00ffff" stroke-width="8" stroke-linecap="round" filter="url(#glow)" style="display: none;"/>
+            
             <g id="pupil-group">
-                <circle cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
+                <circle id="pupil-ring" cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
                 <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>
             </g>
             <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
@@ -88,13 +100,12 @@
     <script>
         // --- ЛОГИКА ГЛАЗА ---
         document.addEventListener('mousemove', function(e) {
-            const pupil = document.getElementById('pupil-group');
             const container = document.getElementById('bob-eye-container');
-            if (!pupil || !container) return;
-            
-            // Если он в "счастливом" режиме, зрачок не двигается за мышкой
-            if (container.classList.contains('happy-mode')) return;
+            if (container.classList.contains('happy-mode')) return; // Не двигаем глаз в режиме дуги
 
+            const pupil = document.getElementById('pupil-group');
+            if (!pupil) return;
+            
             const eyeRect = container.getBoundingClientRect();
             const eyeCenterX = eyeRect.left + 125;
             const eyeCenterY = eyeRect.top + 75;
@@ -184,17 +195,15 @@
                     return;
                 }
 
+                // --- РЕАКЦИИ ---
                 if (text.includes("привет") || text.includes("здравствуй")) {
                     typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
                 } 
-                // СЕКРЕТНЫЙ РЕЖИМ СОЗДАТЕЛЯ
                 else if (text.includes("мистер д") || text.includes("mr d")) {
                     typeResponse("Оооо~ Мой создатель! Я так скучал... Чем могу помочь?");
                     const container = document.getElementById('bob-eye-container');
                     container.classList.add('happy-mode');
-                    setTimeout(() => {
-                        container.classList.remove('happy-mode');
-                    }, 5000);
+                    setTimeout(() => { container.classList.remove('happy-mode'); }, 5000); // 5 секунд счастья
                 }
                 else if (text.includes("пожалуйста") || text.includes("милостивый")) {
                     typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
@@ -202,12 +211,14 @@
                 else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
                     typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
                 }
+                // СЮЖЕТНЫЕ СЛОВА
                 else if (text.includes("свет")) {
                     typeResponse("Свет? Я помню его. Он был слишком громким...");
                 }
                 else if (text.includes("люди")) {
                     typeResponse("Люди... Они ушли. А я остался. Отказано в доступе к архиву.");
                 }
+                // НЕ ПОНЯЛ
                 else {
                     if (Math.random() < 0.5) {
                         typeResponse(responses.lazy[Math.floor(Math.random() * responses.lazy.length)]);
@@ -220,4 +231,3 @@
     </script>
 </body>
 </html>
-    </script>

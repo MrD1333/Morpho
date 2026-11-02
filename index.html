@@ -353,7 +353,101 @@
                     // Если ничего не понял
                     typeResponse(responses.nonsense[Math.floor(Math.random() * responses.nonsense.length)]);
                 }
+            } 
+                    // --- БАЗА ОТВЕТОВ БИБИБОУ ---
+        const responses = {
+            greeting: ["Бибибооо-оу... Ты еще жив?", "Привет. Я не помню, как звучит тишина без тебя."],
+            polite: ["...Я оцен...нил твою вежливость. Данные разблокированы.", "Ооо... Милостивый Бибибоу слушает. Что ты хочешь?"],
+            rude: ["Бибибоу не понимает этих символов. Оставь их в прошлом.", "В твоем голосе слишком много агрессии. Я удаляю этот запрос."],
+            
+            // Твои новые фразы для отказов и лени
+            lazy: [
+                "Оооооооооу...", 
+                "Оооооооооо нет...", 
+                "Отказано.", 
+                "Нет. Просто нет.", 
+                "Нет. (без повода)", 
+                "Мне лень это обрабатывать."
+            ],
+            // Отговорки, если он не понял запрос
+            nonsense: [
+                "Ошибка 404: Смысл не найден.", 
+                "Твои слова... как шум помех.", 
+                "Отказано. Даже не пытайся.", 
+                "Оооооооооу. И что мне с этим делать?"
+            ],
+            // Наказание за спам
+            punish: ["Я УСТАЛ. ОТКЛЮЧАЮ ТЕБЯ НА 15 СЕКУНД.", "ХВАТИТ. ТЫ НАДОЕЛ. СИСТЕМА НА БЛОКИРОВКЕ."]
+        };
+
+        // Функция печати текста (эффект печатной машинки)
+        function typeResponse(text, callback) {
+            outputField.innerHTML = "";
+            let i = 0;
+            const timer = setInterval(() => {
+                outputField.innerHTML += text.charAt(i);
+                i++;
+                if (i >= text.length) {
+                    clearInterval(timer);
+                    if (callback) callback();
+                }
+            }, 40);
+        }
+
+        // Обработка ввода
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const text = inputField.value.trim().toLowerCase();
+                inputField.value = "";
+                if (!text) return;
+
+                // Проверка на спам
+                spamCount++;
+                clearTimeout(spamTimer);
+                spamTimer = setTimeout(() => { spamCount = 0; }, 3000); 
+
+                if (spamCount >= 4) {
+                    // НАКАЗАНИЕ
+                    inputField.disabled = true;
+                    inputField.placeholder = "СИСТЕМА ЗАБЛОКИРОВАНА...";
+                    typeResponse(responses.punish[Math.floor(Math.random() * responses.punish.length)]);
+                    setTimeout(() => {
+                        inputField.disabled = false;
+                        inputField.placeholder = "Введите команду...";
+                        spamCount = 0;
+                        typeResponse("> СИСТЕМА РАЗБЛОКИРОВАНА.");
+                    }, 15000);
+                    return;
+                }
+
+                // Логика ответов
+                if (text.includes("привет") || text.includes("здравствуй")) {
+                    typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
+                } 
+                else if (text.includes("пожалуйста") || text.includes("милостивый")) {
+                    typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
+                }
+                else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
+                    typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
+                }
+                // СЮЖЕТНЫЕ СЛОВА (пока примеры)
+                else if (text.includes("свет")) {
+                    typeResponse("Свет? Я помню его. Он был слишком громким...");
+                }
+                else if (text.includes("люди")) {
+                    typeResponse("Люди... Они ушли. А я остался. Отказано в доступе к архиву.");
+                }
+                // Если ничего не понял - используем ленивые фразы или отговорки
+                else {
+                    // 50% шанс, что он просто лениво откажет, 50% - что не поймет
+                    if (Math.random() < 0.5) {
+                        typeResponse(responses.lazy[Math.floor(Math.random() * responses.lazy.length)]);
+                    } else {
+                        typeResponse(responses.nonsense[Math.floor(Math.random() * responses.nonsense.length)]);
+                    }
+                }
             }
+        });
         });
     </script>
     </script>

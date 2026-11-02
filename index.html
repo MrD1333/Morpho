@@ -4,201 +4,61 @@
     <meta charset="UTF-8">
     <title>СИСТЕМА</title>
     <style>
-        body, html {
-            margin: 0; padding: 0; height: 100%;
-            background-color: #050505;
-            color: #33ff33;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
-
-        /* Эффект виньетки */
-        body::after {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none; z-index: 10;
-        }
-
-        /* Строки развертки */
-        .scanlines {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.03) 50%);
-            background-size: 100% 4px; pointer-events: none; z-index: 9;
-        }
-
-        .container {
-            padding: 50px; max-width: 800px; margin: 0 auto;
-            position: relative; z-index: 5;
-        }
-
-        .header {
-            margin-bottom: 30px; font-size: 18px; text-shadow: 0 0 5px #33ff33;
-        }
-
-        .cursor {
-            display: inline-block; width: 10px; height: 20px;
-            background-color: #33ff33; animation: blink 1s step-end infinite;
-            vertical-align: bottom;
-        }
-
+        body, html { margin: 0; padding: 0; height: 100%; background-color: #050505; color: #33ff33; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        body::after { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 10; }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.03) 50%); background-size: 100% 4px; pointer-events: none; z-index: 9; }
+        .container { padding: 50px; max-width: 800px; margin: 0 auto; position: relative; z-index: 5; }
+        .header { margin-bottom: 30px; font-size: 18px; text-shadow: 0 0 5px #33ff33; }
+        .cursor { display: inline-block; width: 10px; height: 20px; background-color: #33ff33; animation: blink 1s step-end infinite; vertical-align: bottom; }
         @keyframes blink { 50% { opacity: 0; } }
-
         .folder-list { list-style: none; padding: 0; }
         .folder-list li { margin-bottom: 15px; }
-
-        .folder-link {
-            color: #33ff33; text-decoration: none; font-size: 24px;
-            display: inline-block; padding: 5px 10px; border: 1px solid transparent;
-            transition: all 0.2s; cursor: pointer;
-        }
-
-        .folder-link:hover {
-            border: 1px solid #33ff33; background-color: rgba(51, 255, 51, 0.1);
-            text-shadow: 0 0 10px #33ff33;
-        }
-
-        /* Выпадающий список файлов */
-        .sub-files {
-            display: none; list-style: none; padding-left: 40px; margin-top: 10px;
-        }
-
+        .folder-link { color: #33ff33; text-decoration: none; font-size: 24px; display: inline-block; padding: 5px 10px; border: 1px solid transparent; transition: all 0.2s; cursor: pointer; }
+        .folder-link:hover { border: 1px solid #33ff33; background-color: rgba(51, 255, 51, 0.1); text-shadow: 0 0 10px #33ff33; }
+        .sub-files { display: none; list-style: none; padding-left: 40px; margin-top: 10px; }
         .sub-files.active { display: block; }
-
-        .file-link {
-            color: #2299aa; /* Темно-бирюзовый для файлов */
-            text-decoration: none; font-size: 18px; cursor: pointer; display: block;
-            margin-bottom: 5px; transition: color 0.2s;
-        }
-        
+        .file-link { color: #2299aa; text-decoration: none; font-size: 18px; cursor: pointer; display: block; margin-bottom: 5px; transition: color 0.2s; }
         .file-link:hover { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
-
-        /* Терминал Бибибоу (Бирюзовый текст) */
-        .bob-terminal {
-            margin-top: 40px; font-size: 20px; color: #00ffff;
-            text-shadow: 0 0 8px #00ffff; height: 30px;
-            font-weight: bold; letter-spacing: 1px;
-        }
-
-        .hidden-text {
-            display: none; color: #ff3333; font-size: 16px;
-            margin-top: 20px; text-shadow: 0 0 5px #ff3333;
-        }
+        .hidden-text { display: none; color: #ff3333; font-size: 16px; margin-top: 20px; text-shadow: 0 0 5px #ff3333; }
         .show { display: block; }
+        
+        /* ЧАТ */
+        #chat-container { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(5, 5, 5, 0.9); padding: 15px 20px; border-top: 1px solid #33ff33; z-index: 30; font-family: 'Courier New', Courier, monospace; box-sizing: border-box; }
+        #bob-output { color: #00ffff; font-size: 18px; margin-bottom: 10px; text-shadow: 0 0 5px #00ffff; min-height: 24px; }
+        .input-area { display: flex; align-items: center; }
+        .prompt { color: #33ff33; font-size: 18px; margin-right: 10px; font-weight: bold; }
+        #user-input { background: transparent; border: none; color: #33ff33; font-family: 'Courier New', Courier, monospace; font-size: 18px; width: 100%; outline: none; text-shadow: 0 0 5px #33ff33; }
+        #user-input:disabled { color: #333; text-shadow: none; cursor: not-allowed; }
 
+        /* ГЛАЗ */
+        #bob-eye-container { position: fixed; bottom: 60px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); }
+        @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
+        #pupil-center { transition: r 0.3s ease, filter 0.3s ease; }
     </style>
 </head>
 <body>
-
     <div class="scanlines"></div>
-
     <div class="container">
         <div class="header">
             > СИСТЕМА ЗАГРУЖЕНА. ДОСТУП РАЗРЕШЕН.<br>
             > ОЖИДАНИЕ КОМАНДЫ... <span class="cursor"></span>
         </div>
-
         <ul class="folder-list">
-            <!-- Папка 1 с битыми файлами -->
             <li>
-                <span class="folder-link" onclick="toggleFolder('docs-files')">
-                    <span class="folder-icon">📁</span> ДОКУМЕНТЫ
-                </span>
+                <span class="folder-link" onclick="toggleFolder('docs-files')"><span class="folder-icon">📁</span> ДОКУМЕНТЫ</span>
                 <ul class="sub-files" id="docs-files">
                     <li><span class="file-link" onclick="triggerBob()">fgh_j86_old.txt</span></li>
                     <li><span class="file-link" onclick="triggerBob()">x_kl9_data.log</span></li>
                     <li><span class="file-link" onclick="triggerBob()">sys_qw3_err.bin</span></li>
                 </ul>
             </li>
-            
-            <li>
-                <span class="folder-link" onclick="triggerBob()">
-                    <span class="folder-icon">📁</span> ПИСЬМА
-                </span>
-            </li>
-
-            <li>
-                <span class="folder-link" onclick="document.getElementById('secret-msg').classList.add('show')">
-                    <span class="folder-icon">📁</span> [ДАННЫЕ УДАЛЕНЫ]
-                </span>
-            </li>
+            <li><span class="folder-link" onclick="triggerBob()"><span class="folder-icon">📁</span> ПИСЬМА</span></li>
+            <li><span class="folder-link" onclick="document.getElementById('secret-msg').classList.add('show')"><span class="folder-icon">📁</span> [ДАННЫЕ УДАЛЕНЫ]</span></li>
         </ul>
-
-        <!-- Скрытый блок (пасхалка) -->
-        <div id="secret-msg" class="hidden-text">
-            > ОШИБКА: dfghgrfgfefgfdЬ.<br>
-            > ОН УdfgЖЕ ЗsdfЬ.
-        </div>
-
-        <!-- Терминал для Бибибоу -->
-        <div class="bob-terminal" id="bob-output"></div>
+        <div id="secret-msg" class="hidden-text">> ОШИБКА: ВЫ НЕ ДОЛЖНЫ БЫЛИ ЭТО ВИДЕТЬ.<br>> ОН УЖЕ ЗДЕСЬ.</div>
     </div>
 
-    <script>
-        // Переменные для логики
-        let clickCount = 0;
-        let clickTimer;
-
-        // Функция открытия/закрытия папки "ДОКУМЕНТЫ"
-        function toggleFolder(id) {
-            const folder = document.getElementById(id);
-            if (folder) folder.classList.toggle('active');
-        }
-
-        // Главная функция Бибибоу
-        function triggerBob() {
-            clickCount++;
-            clearTimeout(clickTimer);
-            
-            // Если кликнули слишком много раз (5 и больше)
-            if (clickCount >= 5) {
-                const sassyPhrases = [
-                    "Какой любопытный...",
-                    "нос у кого-то слишком длинный..."
-                ];
-                const randomSassy = sassyPhrases[Math.floor(Math.random() * sassyPhrases.length)];
-                typeText(randomSassy, true);
-                
-                // Сбрасываем счетчик после "злости"
-                clickCount = 0; 
-            } else {
-                // Обычное поведение
-                typeText("Бибибооо-оу", false);
-                
-                // Сбрасываем счетчик через 3 секунды бездействия
-                clickTimer = setTimeout(() => { clickCount = 0; }, 3000);
-            }
-        }
-
-        // Функция появления текста с анимацией точек
-        function typeText(text, isSassy) {
-            const terminal = document.getElementById('bob-output');
-            terminal.style.color = isSassy ? "#ff00ff" : "#00ffff"; // Если злится - фиолетовый, если нет - бирюзовый
-            terminal.style.textShadow = isSassy ? "0 0 8px #ff00ff" : "0 0 8px #00ffff";
-            
-            let dots = "";
-            let dotCount = 0;
-            
-            terminal.textContent = text;
-            
-            // Анимация точек
-            const dotInterval = setInterval(() => {
-                dotCount++;
-                if (dotCount > 3) dotCount = 1;
-                dots = ".".repeat(dotCount);
-                terminal.textContent = text + " " + dots;
-            }, 400);
-
-            // Останавливаем анимацию через 2.5 секунды
-            setTimeout(() => {
-                clearInterval(dotInterval);
-                terminal.textContent = text + "...";
-            }, 2500);
-        }
-    </script>
-</body>
-</html>
-
-    <!-- Живой глаз Бибибоу -->
+    <!-- ГЛАЗ -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
             <path d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
@@ -206,16 +66,11 @@
                 <circle cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
                 <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>
             </g>
-            <defs>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-            </defs>
+            <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
         </svg>
     </div>
 
-    <!-- Терминал чата с Бибибоу -->
+    <!-- ЧАТ -->
     <div id="chat-container">
         <div id="bob-output"></div>
         <div class="input-area">
@@ -223,45 +78,6 @@
             <input type="text" id="user-input" autocomplete="off" placeholder="Введите команду...">
         </div>
     </div>
-
-    <style>
-        #bob-eye-container {
-            position: fixed; bottom: -5px; right: 20px; z-index: 20;
-            pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg);
-        }
-        @keyframes pulse-glow {
-            0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); }
-            100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); }
-        }
-        #pupil-center { transition: r 0.3s ease, filter 0.3s ease; }
-
-        /* Стили для чата */
-        #chat-container {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(5, 5, 5, 0.9); padding: 15px 20px;
-            border-top: 1px solid #33ff33; z-index: 30;
-            font-family: 'Courier New', Courier, monospace;
-            box-sizing: border-box;
-        }
-        #bob-output {
-            color: #00ffff; font-size: 18px; margin-bottom: 10px;
-            text-shadow: 0 0 5px #00ffff; min-height: 24px;
-        }
-        .input-area {
-            display: flex; align-items: center;
-        }
-        .prompt {
-            color: #33ff33; font-size: 18px; margin-right: 10px; font-weight: bold;
-        }
-        #user-input {
-            background: transparent; border: none; color: #33ff33;
-            font-family: 'Courier New', Courier, monospace; font-size: 18px;
-            width: 100%; outline: none; text-shadow: 0 0 5px #33ff33;
-        }
-        #user-input:disabled {
-            color: #333; text-shadow: none; cursor: not-allowed;
-        }
-    </style>
 
     <script>
         // --- ЛОГИКА ГЛАЗА ---
@@ -276,7 +92,6 @@
             pupil.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
             pupil.style.transition = 'transform 0.1s ease-out';
         });
-
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
         const pupilCenter = document.getElementById('pupil-center');
         if (forbiddenFolder && pupilCenter) {
@@ -284,130 +99,53 @@
             forbiddenFolder.addEventListener('mouseleave', () => { pupilCenter.setAttribute('r', '6'); pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; });
         }
 
-        // --- ЛОГИКА ЧАТА И БИБИБОУ ---
+        // --- ЛОГИКА ЧАТА ---
         const inputField = document.getElementById('user-input');
         const outputField = document.getElementById('bob-output');
-        let spamCount = 0;
-        let spamTimer;
+        let spamCount = 0; let spamTimer;
 
-        // База ответов (Временная! Вы потом замените текст на свой)
         const responses = {
             greeting: ["Бибибооо-оу... Ты еще жив?", "Привет. Я не помню, как звучит тишина без тебя."],
             polite: ["...Я оцен...нил твою вежливость. Данные разблокированы.", "Ооо... Милостивый Бибибоу слушает. Что ты хочешь?"],
             rude: ["Бибибоу не понимает этих символов. Оставь их в прошлом.", "В твоем голосе слишком много агрессии. Я удаляю этот запрос."],
-            nonsense: ["Ошибка 404: Смысл не найден.", "Твои слова... как шум помех. Попробуй иначе."],
+            lazy: ["Оооооооооу...", "Оооооооооо нет...", "Отказано.", "Нет. Просто нет.", "Нет. (без повода)", "Мне лень это обрабатывать."],
+            nonsense: ["Ошибка 404: Смысл не найден.", "Твои слова... как шум помех.", "Отказано. Даже не пытайся.", "Оооооооооу. И что мне с этим делать?"],
             punish: ["Я УСТАЛ. ОТКЛЮЧАЮ ТЕБЯ НА 15 СЕКУНД.", "ХВАТИТ. ТЫ НАДОЕЛ. СИСТЕМА НА БЛОКИРОВКЕ."]
         };
 
-        // Функция печати текста (эффект печатной машинки)
         function typeResponse(text, callback) {
             outputField.innerHTML = "";
             let i = 0;
             const timer = setInterval(() => {
                 outputField.innerHTML += text.charAt(i);
                 i++;
-                if (i >= text.length) {
-                    clearInterval(timer);
-                    if (callback) callback();
-                }
+                if (i >= text.length) { clearInterval(timer); if (callback) callback(); }
             }, 40);
         }
 
-        // Обработка ввода
+        // Реакция на клики по папкам
+        function triggerBob() {
+            const randomLazy = responses.lazy[Math.floor(Math.random() * responses.lazy.length)];
+            typeResponse("Бибибооо-оу... " + randomLazy);
+        }
+        function toggleFolder(id) {
+            const folder = document.getElementById(id);
+            if (folder) folder.classList.toggle('active');
+            triggerBob();
+        }
+
+        // Обработка ввода в чат
         inputField.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const text = inputField.value.trim().toLowerCase();
                 inputField.value = "";
                 if (!text) return;
 
-                // Проверка на спам
-                spamCount++;
-                clearTimeout(spamTimer);
-                spamTimer = setTimeout(() => { spamCount = 0; }, 3000); // Сброс счетчика через 3 сек
-
-                if (spamCount >= 4) {
-                    // НАКАЗАНИЕ
-                    inputField.disabled = true;
-                    inputField.placeholder = "СИСТЕМА ЗАБЛОКИРОВАНА...";
-                    typeResponse(responses.punish[Math.floor(Math.random() * responses.punish.length)]);
-                    setTimeout(() => {
-                        inputField.disabled = false;
-                        inputField.placeholder = "Введите команду...";
-                        spamCount = 0;
-                        typeResponse("> СИСТЕМА РАЗБЛОКИРОВАНА.");
-                    }, 15000);
-                    return;
-                }
-
-                // Логика ответов
-                if (text.includes("привет") || text.includes("здравствуй")) {
-                    typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
-                } 
-                else if (text.includes("пожалуйста") || text.includes("милостивый")) {
-                    typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
-                }
-                else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
-                    typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
-                }
-                else {
-                    // Если ничего не понял
-                    typeResponse(responses.nonsense[Math.floor(Math.random() * responses.nonsense.length)]);
-                }
-            } 
-                    // --- БАЗА ОТВЕТОВ БИБИБОУ ---
-        const responses = {
-            greeting: ["Бибибооо-оу... Ты еще жив?", "Привет. Я не помню, как звучит тишина без тебя."],
-            polite: ["...Я оцен...нил твою вежливость. Данные разблокированы.", "Ооо... Милостивый Бибибоу слушает. Что ты хочешь?"],
-            rude: ["Бибибоу не понимает этих символов. Оставь их в прошлом.", "В твоем голосе слишком много агрессии. Я удаляю этот запрос."],
-            
-            // Твои новые фразы для отказов и лени
-            lazy: [
-                "Оооооооооу...", 
-                "Оооооооооо нет...", 
-                "Отказано.", 
-                "Нет. Просто нет.", 
-                "Нет. (без повода)", 
-                "Мне лень это обрабатывать."
-            ],
-            // Отговорки, если он не понял запрос
-            nonsense: [
-                "Ошибка 404: Смысл не найден.", 
-                "Твои слова... как шум помех.", 
-                "Отказано. Даже не пытайся.", 
-                "Оооооооооу. И что мне с этим делать?"
-            ],
-            // Наказание за спам
-            punish: ["Я УСТАЛ. ОТКЛЮЧАЮ ТЕБЯ НА 15 СЕКУНД.", "ХВАТИТ. ТЫ НАДОЕЛ. СИСТЕМА НА БЛОКИРОВКЕ."]
-        };
-
-        // Функция печати текста (эффект печатной машинки)
-        function typeResponse(text, callback) {
-            outputField.innerHTML = "";
-            let i = 0;
-            const timer = setInterval(() => {
-                outputField.innerHTML += text.charAt(i);
-                i++;
-                if (i >= text.length) {
-                    clearInterval(timer);
-                    if (callback) callback();
-                }
-            }, 40);
-        }
-
-        // Обработка ввода
-        inputField.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const text = inputField.value.trim().toLowerCase();
-                inputField.value = "";
-                if (!text) return;
-
-                // Проверка на спам
                 spamCount++;
                 clearTimeout(spamTimer);
                 spamTimer = setTimeout(() => { spamCount = 0; }, 3000); 
 
                 if (spamCount >= 4) {
-                    // НАКАЗАНИЕ
                     inputField.disabled = true;
                     inputField.placeholder = "СИСТЕМА ЗАБЛОКИРОВАНА...";
                     typeResponse(responses.punish[Math.floor(Math.random() * responses.punish.length)]);
@@ -420,7 +158,6 @@
                     return;
                 }
 
-                // Логика ответов
                 if (text.includes("привет") || text.includes("здравствуй")) {
                     typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
                 } 
@@ -430,16 +167,13 @@
                 else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
                     typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
                 }
-                // СЮЖЕТНЫЕ СЛОВА (пока примеры)
                 else if (text.includes("свет")) {
                     typeResponse("Свет? Я помню его. Он был слишком громким...");
                 }
                 else if (text.includes("люди")) {
                     typeResponse("Люди... Они ушли. А я остался. Отказано в доступе к архиву.");
                 }
-                // Если ничего не понял - используем ленивые фразы или отговорки
                 else {
-                    // 50% шанс, что он просто лениво откажет, 50% - что не поймет
                     if (Math.random() < 0.5) {
                         typeResponse(responses.lazy[Math.floor(Math.random() * responses.lazy.length)]);
                     } else {
@@ -448,6 +182,9 @@
                 }
             }
         });
+    </script>
+</body>
+</html>
         });
     </script>
     </script>

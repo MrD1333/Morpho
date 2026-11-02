@@ -31,9 +31,15 @@
         #user-input:disabled { color: #333; text-shadow: none; cursor: not-allowed; }
 
         /* ГЛАЗ */
-        #bob-eye-container { position: fixed; bottom: 60px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); }
+        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: transform 0.3s ease; }
         @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
-        #pupil-center { transition: r 0.3s ease, filter 0.3s ease; }
+        
+        /* Классы для зрачка */
+        #pupil-center { transition: r 0.3s ease, fill 0.3s ease; }
+        
+        /* РЕЖИМ "ДОВОЛЬНЫЙ" (СОЗДАТЕЛЬ) */
+        #bob-eye-container.happy-mode { transform: rotate(-5deg) scaleY(0.8) translateY(10px); }
+        #bob-eye-container.happy-mode #pupil-center { fill: #ff00ff; r: 10; filter: drop-shadow(0 0 10px #ff00ff); }
     </style>
 </head>
 <body>
@@ -83,8 +89,13 @@
         // --- ЛОГИКА ГЛАЗА ---
         document.addEventListener('mousemove', function(e) {
             const pupil = document.getElementById('pupil-group');
-            if (!pupil) return;
-            const eyeRect = document.getElementById('bob-eye-container').getBoundingClientRect();
+            const container = document.getElementById('bob-eye-container');
+            if (!pupil || !container) return;
+            
+            // Если он в "счастливом" режиме, зрачок не двигается за мышкой
+            if (container.classList.contains('happy-mode')) return;
+
+            const eyeRect = container.getBoundingClientRect();
             const eyeCenterX = eyeRect.left + 125;
             const eyeCenterY = eyeRect.top + 75;
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
@@ -92,11 +103,22 @@
             pupil.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
             pupil.style.transition = 'transform 0.1s ease-out';
         });
+        
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
         const pupilCenter = document.getElementById('pupil-center');
         if (forbiddenFolder && pupilCenter) {
-            forbiddenFolder.addEventListener('mouseenter', () => { pupilCenter.setAttribute('r', '2'); pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; });
-            forbiddenFolder.addEventListener('mouseleave', () => { pupilCenter.setAttribute('r', '6'); pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; });
+            forbiddenFolder.addEventListener('mouseenter', () => { 
+                if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
+                    pupilCenter.setAttribute('r', '2'); 
+                    pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
+                }
+            });
+            forbiddenFolder.addEventListener('mouseleave', () => { 
+                if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
+                    pupilCenter.setAttribute('r', '6'); 
+                    pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; 
+                }
+            });
         }
 
         // --- ЛОГИКА ЧАТА ---
@@ -123,18 +145,22 @@
             }, 40);
         }
 
-        // Реакция на клики по папкам
         function triggerBob() {
-            const randomLazy = responses.lazy[Math.floor(Math.random() * responses.lazy.length)];
-            typeResponse("Бибибооо-оу... " + randomLazy);
+            const container = document.getElementById('bob-eye-container');
+            if (container.classList.contains('happy-mode')) {
+                typeResponse("Бибибооо~ Конечно, мой создатель. Вот твои данные~");
+            } else {
+                const randomLazy = responses.lazy[Math.floor(Math.random() * responses.lazy.length)];
+                typeResponse("Бибибооо-оу... " + randomLazy);
+            }
         }
+
         function toggleFolder(id) {
             const folder = document.getElementById(id);
             if (folder) folder.classList.toggle('active');
             triggerBob();
         }
 
-        // Обработка ввода в чат
         inputField.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const text = inputField.value.trim().toLowerCase();
@@ -161,6 +187,15 @@
                 if (text.includes("привет") || text.includes("здравствуй")) {
                     typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
                 } 
+                // СЕКРЕТНЫЙ РЕЖИМ СОЗДАТЕЛЯ
+                else if (text.includes("мистер д") || text.includes("mr d")) {
+                    typeResponse("Оооо~ Мой создатель! Я так скучал... Чем могу помочь?");
+                    const container = document.getElementById('bob-eye-container');
+                    container.classList.add('happy-mode');
+                    setTimeout(() => {
+                        container.classList.remove('happy-mode');
+                    }, 5000);
+                }
                 else if (text.includes("пожалуйста") || text.includes("милостивый")) {
                     typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
                 }
@@ -185,6 +220,4 @@
     </script>
 </body>
 </html>
-        });
-    </script>
     </script>

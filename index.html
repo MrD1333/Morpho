@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -31,16 +31,16 @@
         #user-input:disabled { color: #333; text-shadow: none; cursor: not-allowed; }
 
         /* ГЛАЗ */
-        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: transform 0.3s ease; }
+        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: all 0.3s ease; }
         @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
         
         /* Классы для зрачка */
         #pupil-center { transition: r 0.3s ease, fill 0.3s ease, transform 0.3s ease; }
         
         /* --- ЭФФЕКТ ДОВОЛЬНОГО ГЛАЗА (ДУГА) --- */
-        #bob-eye-container.happy-mode #eye-normal { display: none; }
-        #bob-eye-container.happy-mode #eye-happy { display: block; }
-        #bob-eye-container.happy-mode #pupil-ring { display: none; }
+        #bob-eye-container.happy-mode #eye-normal { display: none !important; }
+        #bob-eye-container.happy-mode #eye-happy { display: block !important; }
+        #bob-eye-container.happy-mode #pupil-ring { display: none !important; }
         #bob-eye-container.happy-mode #pupil-center { 
             fill: #ff00ff; 
             r: 6; 
@@ -203,7 +203,7 @@
                     typeResponse("Оооо~ Мой создатель! Я так скучал... Чем могу помочь?");
                     const container = document.getElementById('bob-eye-container');
                     container.classList.add('happy-mode');
-                    setTimeout(() => { container.classList.remove('happy-mode'); }, 5000); // 5 секунд счастья
+                    setTimeout(() => { container.classList.remove('happy-mode'); }, 5000); 
                 }
                 else if (text.includes("пожалуйста") || text.includes("милостивый")) {
                     typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);

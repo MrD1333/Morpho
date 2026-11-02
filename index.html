@@ -201,15 +201,11 @@
     <!-- Живой глаз Бибибоу -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Контур глаза (сделан более круглым и симметричным) -->
             <path d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
-            
-            <!-- Зрачок -->
             <g id="pupil-group">
                 <circle cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
                 <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>
             </g>
-
             <defs>
                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="4" result="blur" />
@@ -219,68 +215,145 @@
         </svg>
     </div>
 
+    <!-- Терминал чата с Бибибоу -->
+    <div id="chat-container">
+        <div id="bob-output"></div>
+        <div class="input-area">
+            <span class="prompt">></span>
+            <input type="text" id="user-input" autocomplete="off" placeholder="Введите команду...">
+        </div>
+    </div>
+
     <style>
         #bob-eye-container {
-            position: fixed;
-            bottom: -5px; 
-            right: 20px;
-            z-index: 20;
-            pointer-events: none;
-            opacity: 0.9;
-            animation: pulse-glow 3s infinite alternate;
-            transform: rotate(-5deg);
+            position: fixed; bottom: -5px; right: 20px; z-index: 20;
+            pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg);
         }
-
         @keyframes pulse-glow {
             0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); }
             100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); }
         }
-        
-        #pupil-center {
-            transition: r 0.3s ease, filter 0.3s ease;
+        #pupil-center { transition: r 0.3s ease, filter 0.3s ease; }
+
+        /* Стили для чата */
+        #chat-container {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(5, 5, 5, 0.9); padding: 15px 20px;
+            border-top: 1px solid #33ff33; z-index: 30;
+            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+        }
+        #bob-output {
+            color: #00ffff; font-size: 18px; margin-bottom: 10px;
+            text-shadow: 0 0 5px #00ffff; min-height: 24px;
+        }
+        .input-area {
+            display: flex; align-items: center;
+        }
+        .prompt {
+            color: #33ff33; font-size: 18px; margin-right: 10px; font-weight: bold;
+        }
+        #user-input {
+            background: transparent; border: none; color: #33ff33;
+            font-family: 'Courier New', Courier, monospace; font-size: 18px;
+            width: 100%; outline: none; text-shadow: 0 0 5px #33ff33;
+        }
+        #user-input:disabled {
+            color: #333; text-shadow: none; cursor: not-allowed;
         }
     </style>
 
     <script>
-        // Логика слежения за мышкой
+        // --- ЛОГИКА ГЛАЗА ---
         document.addEventListener('mousemove', function(e) {
             const pupil = document.getElementById('pupil-group');
             if (!pupil) return;
-
-            // Получаем координаты центра глаза на экране
             const eyeRect = document.getElementById('bob-eye-container').getBoundingClientRect();
-            const eyeCenterX = eyeRect.left + 125; // Центр SVG по X
-            const eyeCenterY = eyeRect.top + 75;   // Центр SVG по Y
-
-            // Вычисляем, куда движется мышка
+            const eyeCenterX = eyeRect.left + 125;
+            const eyeCenterY = eyeRect.top + 75;
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
-            
-            // Задаем максимальную амплитуду движения (чтобы не вылезал)
-            // По X можно двигаться на 35 пикселей, по Y — только на 12 (из-за формы глаза)
-            const maxX = 35;
-            const maxY = 12;
-            
-            // Вычисляем, насколько сильно нужно сдвинуть зрачок в сторону мышки
-            // Используем косинус и синус, чтобы плавно ограничить движение по овалу
-            const pupilX = Math.cos(angle) * maxX;
-            const pupilY = Math.sin(angle) * maxY;
-
-            pupil.style.transform = `translate(${pupilX}px, ${pupilY}px)`;
+            const maxX = 35; const maxY = 12;
+            pupil.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
             pupil.style.transition = 'transform 0.1s ease-out';
         });
 
-        // Логика сужения зрачка на запретные файлы
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
         const pupilCenter = document.getElementById('pupil-center');
-
         if (forbiddenFolder && pupilCenter) {
-            forbiddenFolder.addEventListener('mouseenter', () => {
-                pupilCenter.setAttribute('r', '2'); 
-                pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
-            });
-            forbiddenFolder.addEventListener('mouseleave', () => {
-                pupilCenter.setAttribute('r', '6'); 
-                pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; 
-            });
+            forbiddenFolder.addEventListener('mouseenter', () => { pupilCenter.setAttribute('r', '2'); pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; });
+            forbiddenFolder.addEventListener('mouseleave', () => { pupilCenter.setAttribute('r', '6'); pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; });
         }
+
+        // --- ЛОГИКА ЧАТА И БИБИБОУ ---
+        const inputField = document.getElementById('user-input');
+        const outputField = document.getElementById('bob-output');
+        let spamCount = 0;
+        let spamTimer;
+
+        // База ответов (Временная! Вы потом замените текст на свой)
+        const responses = {
+            greeting: ["Бибибооо-оу... Ты еще жив?", "Привет. Я не помню, как звучит тишина без тебя."],
+            polite: ["...Я оцен...нил твою вежливость. Данные разблокированы.", "Ооо... Милостивый Бибибоу слушает. Что ты хочешь?"],
+            rude: ["Бибибоу не понимает этих символов. Оставь их в прошлом.", "В твоем голосе слишком много агрессии. Я удаляю этот запрос."],
+            nonsense: ["Ошибка 404: Смысл не найден.", "Твои слова... как шум помех. Попробуй иначе."],
+            punish: ["Я УСТАЛ. ОТКЛЮЧАЮ ТЕБЯ НА 15 СЕКУНД.", "ХВАТИТ. ТЫ НАДОЕЛ. СИСТЕМА НА БЛОКИРОВКЕ."]
+        };
+
+        // Функция печати текста (эффект печатной машинки)
+        function typeResponse(text, callback) {
+            outputField.innerHTML = "";
+            let i = 0;
+            const timer = setInterval(() => {
+                outputField.innerHTML += text.charAt(i);
+                i++;
+                if (i >= text.length) {
+                    clearInterval(timer);
+                    if (callback) callback();
+                }
+            }, 40);
+        }
+
+        // Обработка ввода
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const text = inputField.value.trim().toLowerCase();
+                inputField.value = "";
+                if (!text) return;
+
+                // Проверка на спам
+                spamCount++;
+                clearTimeout(spamTimer);
+                spamTimer = setTimeout(() => { spamCount = 0; }, 3000); // Сброс счетчика через 3 сек
+
+                if (spamCount >= 4) {
+                    // НАКАЗАНИЕ
+                    inputField.disabled = true;
+                    inputField.placeholder = "СИСТЕМА ЗАБЛОКИРОВАНА...";
+                    typeResponse(responses.punish[Math.floor(Math.random() * responses.punish.length)]);
+                    setTimeout(() => {
+                        inputField.disabled = false;
+                        inputField.placeholder = "Введите команду...";
+                        spamCount = 0;
+                        typeResponse("> СИСТЕМА РАЗБЛОКИРОВАНА.");
+                    }, 15000);
+                    return;
+                }
+
+                // Логика ответов
+                if (text.includes("привет") || text.includes("здравствуй")) {
+                    typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
+                } 
+                else if (text.includes("пожалуйста") || text.includes("милостивый")) {
+                    typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
+                }
+                else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
+                    typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
+                }
+                else {
+                    // Если ничего не понял
+                    typeResponse(responses.nonsense[Math.floor(Math.random() * responses.nonsense.length)]);
+                }
+            }
+        });
+    </script>
     </script>

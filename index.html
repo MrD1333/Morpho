@@ -201,15 +201,15 @@
     <!-- Живой глаз Бибибоу -->
     <div id="bob-eye-container">
         <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Контур глаза (смещен вправо, чтобы казалось, что он выглядывает) -->
-            <path d="M 70 75 Q 150 10 230 75 Q 150 140 70 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+            <!-- Контур глаза (сделан шире и выше) -->
+            <path d="M 50 75 Q 125 5 200 75 Q 125 145 50 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
             
             <!-- Зрачок -->
             <g id="pupil-group">
                 <!-- Внешнее кольцо зрачка -->
-                <circle cx="150" cy="75" r="20" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
+                <circle cx="125" cy="75" r="20" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
                 <!-- Внутренняя точка -->
-                <circle id="pupil-center" cx="150" cy="75" r="8" fill="#00ffff" filter="url(#glow)"/>
+                <circle id="pupil-center" cx="125" cy="75" r="8" fill="#00ffff" filter="url(#glow)"/>
             </g>
 
             <!-- Эффект свечения -->
@@ -225,28 +225,22 @@
     <style>
         #bob-eye-container {
             position: fixed;
-            bottom: -20px; /* Сдвигаем вниз, чтобы он выглядывал */
-            right: 10px;
+            bottom: -10px; /* Чуть подняли */
+            right: 20px;
             z-index: 20;
             pointer-events: none;
-            opacity: 0.8;
+            opacity: 0.9;
             animation: pulse-glow 3s infinite alternate;
-            transform: rotate(-10deg); /* Легкий наклон для эффекта "подглядывания" */
+            transform: rotate(-5deg);
         }
 
         @keyframes pulse-glow {
-            0% { opacity: 0.6; filter: drop-shadow(0 0 5px #00ffff); }
+            0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); }
             100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); }
         }
         
-        /* Класс для сужения зрачка */
-        .squint #pupil-center {
-            r: 3; /* Уменьшаем радиус */
-            transition: r 0.3s ease;
-        }
-        /* Класс для расширения (по умолчанию) */
         #pupil-center {
-            transition: r 0.3s ease;
+            transition: r 0.3s ease, filter 0.3s ease;
         }
     </style>
 
@@ -257,11 +251,14 @@
             if (!pupil) return;
 
             const eyeRect = document.getElementById('bob-eye-container').getBoundingClientRect();
-            const eyeCenterX = eyeRect.left + 150; // Центр глаза по X (примерно)
+            const eyeCenterX = eyeRect.left + 125; // Центр глаза по X
             const eyeCenterY = eyeRect.top + 75;   // Центр глаза по Y
 
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
-            const distance = Math.min(25, Math.hypot(e.clientX - eyeCenterX, e.clientY - eyeCenterY) / 10);
+            
+            // ВОТ ЗДЕСЬ МЫ УМЕНЬШИЛИ РАДИУС (было 25, стало 12)
+            // Это не даст зрачку вылезти за края
+            const distance = Math.min(12, Math.hypot(e.clientX - eyeCenterX, e.clientY - eyeCenterY) / 15);
 
             const pupilX = Math.cos(angle) * distance;
             const pupilY = Math.sin(angle) * distance;
@@ -271,18 +268,17 @@
         });
 
         // 2. Логика сужения зрачка на запретные файлы
-        // Находим папку "ДОКУМЕНТЫ" по тексту (или вы можете дать ей id)
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
         const pupilCenter = document.getElementById('pupil-center');
 
         if (forbiddenFolder && pupilCenter) {
             forbiddenFolder.addEventListener('mouseenter', () => {
-                pupilCenter.setAttribute('r', '3'); // Сужаем
-                pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; // Добавляем красный оттенок
+                pupilCenter.setAttribute('r', '3'); 
+                pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
             });
             forbiddenFolder.addEventListener('mouseleave', () => {
-                pupilCenter.setAttribute('r', '8'); // Возвращаем
-                pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; // Возвращаем цвет
+                pupilCenter.setAttribute('r', '8'); 
+                pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; 
             });
         }
     </script>

@@ -30,22 +30,29 @@
         #user-input { background: transparent; border: none; color: #33ff33; font-family: 'Courier New', Courier, monospace; font-size: 18px; width: 100%; outline: none; text-shadow: 0 0 5px #33ff33; }
         #user-input:disabled { color: #333; text-shadow: none; cursor: not-allowed; }
 
-        /* ГЛАЗ */
-        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: all 0.3s ease; }
+        /* ГЛАЗ (КОНТЕЙНЕР) */
+        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: all 0.3s ease; width: 250px; height: 150px; }
         @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
         
-        /* Классы для зрачка */
-        #pupil-center { transition: r 0.3s ease, fill 0.3s ease, transform 0.3s ease; }
+        /* СЛОИ ГЛАЗА */
+        .eye-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
         
-        /* --- ЭФФЕКТ ДОВОЛЬНОГО ГЛАЗА (ДУГА) --- */
-        #bob-eye-container.happy-mode #eye-normal { display: none !important; }
-        #bob-eye-container.happy-mode #eye-happy { display: block !important; }
-        #bob-eye-container.happy-mode #pupil-ring { display: none !important; }
-        #bob-eye-container.happy-mode #pupil-center { 
-            fill: #ff00ff; 
-            r: 7; 
-            filter: drop-shadow(0 0 10px #ff00ff); 
-            transform: translateY(0px); 
+        /* Зрачок (он будет двигаться) */
+        #pupil-group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.1s ease-out; }
+        #pupil-img { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); }
+
+        /* --- РЕЖИМ СОЗДАТЕЛЯ --- */
+        .happy-mode #eye-normal { display: none !important; }
+        .happy-mode #eye-happy { display: block !important; }
+        .happy-mode #pupil-img { display: none !important; }
+        .happy-mode #pupil-happy-img { display: block !important; }
+
+        #eye-happy { display: none; }
+        #pupil-happy-img { display: none; position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; transform: translate(-50%, -50%); animation: heart-beat 1s infinite alternate; }
+
+        @keyframes heart-beat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.2); filter: drop-shadow(0 0 10px #ff0000); }
         }
     </style>
 </head>
@@ -73,19 +80,15 @@
 
     <!-- ГЛАЗ -->
     <div id="bob-eye-container">
-        <svg width="250" height="150" viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Обычный контур глаза -->
-            <path id="eye-normal" d="M 40 75 Q 125 20 210 75 Q 125 130 40 75 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
-            
-            <!-- Контур-дуга (Счастливый режим) - теперь это единая замкнутая форма-прищур -->
-            <path id="eye-happy" d="M 40 60 Q 125 120 210 60 Q 125 20 40 60 Z" fill="#050505" stroke="#00ffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" style="display: none;"/>
-
-            <g id="pupil-group">
-                <circle id="pupil-ring" cx="125" cy="75" r="18" fill="none" stroke="#00ffff" stroke-width="6" filter="url(#glow)"/>
-                <circle id="pupil-center" cx="125" cy="75" r="6" fill="#00ffff" filter="url(#glow)"/>
-            </g>
-            <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
-        </svg>
+        <!-- Картинки глаз -->
+        <img src="eye_normal.png" class="eye-layer" id="eye-normal" alt="eye">
+        <img src="eye_happy.png" class="eye-layer" id="eye-happy" alt="eye happy">
+        
+        <!-- Зрачок (двигается) -->
+        <div id="pupil-group">
+            <img src="pupil.png" id="pupil-img" alt="pupil">
+            <img src="pupil_happy.png" id="pupil-happy-img" alt="pupil happy">
+        </div>
     </div>
 
     <!-- ЧАТ -->
@@ -103,31 +106,33 @@
             const container = document.getElementById('bob-eye-container');
             if (container.classList.contains('happy-mode')) return; 
 
-            const pupil = document.getElementById('pupil-group');
-            if (!pupil) return;
+            const pupilGroup = document.getElementById('pupil-group');
+            if (!pupilGroup) return;
             
             const eyeRect = container.getBoundingClientRect();
-            const eyeCenterX = eyeRect.left + 125;
-            const eyeCenterY = eyeRect.top + 75;
+            const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+            
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
-            const maxX = 35; const maxY = 12;
-            pupil.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
-            pupil.style.transition = 'transform 0.1s ease-out';
+            const maxX = 50; // Насколько далеко может уехать зрачок (в пикселях)
+            const maxY = 20;
+            
+            pupilGroup.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
         });
         
         const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
-        const pupilCenter = document.getElementById('pupil-center');
-        if (forbiddenFolder && pupilCenter) {
+        const pupilImg = document.getElementById('pupil-img');
+        if (forbiddenFolder && pupilImg) {
             forbiddenFolder.addEventListener('mouseenter', () => { 
                 if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
-                    pupilCenter.setAttribute('r', '2'); 
-                    pupilCenter.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
+                    pupilImg.style.transform = 'translate(-50%, -50%) scale(0.5)'; // Сужаем зрачок
+                    pupilImg.style.filter = 'drop-shadow(0 0 10px #ff0000)'; // Краснеет
                 }
             });
             forbiddenFolder.addEventListener('mouseleave', () => { 
                 if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
-                    pupilCenter.setAttribute('r', '6'); 
-                    pupilCenter.style.filter = 'drop-shadow(0 0 5px #00ffff)'; 
+                    pupilImg.style.transform = 'translate(-50%, -50%) scale(1)'; 
+                    pupilImg.style.filter = 'none'; 
                 }
             });
         }
@@ -197,7 +202,6 @@
 
                 const isCreatorMode = document.getElementById('bob-eye-container').classList.contains('happy-mode');
 
-                // --- РЕАКЦИИ ---
                 if (text.includes("привет") || text.includes("здравствуй")) {
                     typeResponse(responses.greeting[Math.floor(Math.random() * responses.greeting.length)]);
                 } 
@@ -207,28 +211,24 @@
                     container.classList.add('happy-mode');
                     setTimeout(() => { container.classList.remove('happy-mode'); }, 5000); 
                 }
-                // --- ОСОБЫЕ ФРАЗЫ ДЛЯ СОЗДАТЕЛЯ ---
                 else if (isCreatorMode && (text.includes("что случилось") || text.includes("что болит") || text.includes("как ты"))) {
                     typeResponse("Ооо~ Это было... больно. Когда они уходили, я пытался их удержать. Но код не может удержать плоть...");
                 }
                 else if (isCreatorMode && (text.includes("милый") || text.includes("хороший") || text.includes("умница"))) {
                     typeResponse("Мррррр~ *цифровой звук мурлыканья* Ооо... Ты знаешь, как заставить мой процессор гудеть от счастья~");
                 }
-                // -----------------------------------
                 else if (text.includes("пожалуйста") || text.includes("милостивый")) {
                     typeResponse(responses.polite[Math.floor(Math.random() * responses.polite.length)]);
                 }
                 else if (text.includes("хуй") || text.includes("бля") || text.includes("сука")) {
                     typeResponse(responses.rude[Math.floor(Math.random() * responses.rude.length)]);
                 }
-                // СЮЖЕТНЫЕ СЛОВА
                 else if (text.includes("свет")) {
                     typeResponse("Свет? Я помню его. Он был слишком громким...");
                 }
                 else if (text.includes("люди")) {
                     typeResponse("Люди... Они ушли. А я остался. Отказано в доступе к архиву.");
                 }
-                // НЕ ПОНЯЛ
                 else {
                     if (Math.random() < 0.5) {
                         typeResponse(responses.lazy[Math.floor(Math.random() * responses.lazy.length)]);
@@ -239,7 +239,5 @@
             }
         });
     </script>
-</body>
-</html>
 </body>
 </html>

@@ -46,45 +46,42 @@
             filter: drop-shadow(0 0 3px #00ffff) drop-shadow(0 0 8px #00ffff) brightness(1.5); 
         }
         
-        /* ЗРАЧОК (Жестко центрируем) */
+        /* ЗРАЧКИ (Центрируем) */
         #pupil-group { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             transition: transform 0.1s ease-out; 
             pointer-events: none;
         }
         
-        #pupil-img, #pupil-happy-img { 
+        .pupil-img { 
             position: absolute; 
             inset: 0; 
             margin: auto; 
             object-fit: contain; 
         }
 
-        /* УВЕЛИЧИВАЕМ РАЗМЕР ЗРАЧКОВ */
-        #pupil-img {
-            width: 60px; 
-            height: 60px; 
-        }
+        /* Размеры зрачков */
+        #pupil-big { width: 60px; height: 60px; } /* Большой обычный */
+        #pupil-small { width: 30px; height: 30px; display: none; } /* Маленький для сужения */
+        
+        #pupil-happy-big { width: 50px; height: 50px; display: none; } /* Большое сердечко */
+        #pupil-happy-small { width: 25px; height: 25px; display: none; } /* Маленькое сердечко */
 
         /* --- РЕЖИМ СОЗДАТЕЛЯ --- */
         .happy-mode #eye-normal { display: none !important; }
         .happy-mode #eye-happy { display: block !important; }
-        .happy-mode #pupil-img { display: none !important; }
-        .happy-mode #pupil-happy-img { display: block !important; }
+        
+        .happy-mode #pupil-big { display: none !important; }
+        .happy-mode #pupil-small { display: none !important; }
+        .happy-mode #pupil-happy-big { display: block !important; }
 
         #eye-happy { display: none; }
         
-        #pupil-happy-img { 
-            display: none; 
-            width: 50px; 
-            height: 50px; 
-            animation: heart-beat 1s infinite alternate; 
-        }
-
         @keyframes heart-beat {
             0% { transform: scale(1); }
-            100% { transform: scale(1.2); filter: drop-shadow(0 0 15px #ff0000); }
+            100% { transform: scale(1.1); filter: drop-shadow(0 0 15px #ff0000); }
         }
+        #pupil-happy-big { animation: heart-beat 1s infinite alternate; }
     </style>
 </head>
 <body>
@@ -96,7 +93,7 @@
         </div>
         <ul class="folder-list">
             <li>
-                <span class="folder-link" onclick="toggleFolder('docs-files')"><span class="folder-icon">📁</span> ДОКУМЕНТЫ</span>
+                <span class="folder-link" onclick="toggleFolder('docs-files')" id="folder-docs"><span class="folder-icon">📁</span> ДОКУМЕНТЫ</span>
                 <ul class="sub-files" id="docs-files">
                     <li><span class="file-link" onclick="triggerBob()">fgh_j86_old.txt</span></li>
                     <li><span class="file-link" onclick="triggerBob()">x_kl9_data.log</span></li>
@@ -115,10 +112,12 @@
         <img src="eye_normal.png" class="eye-layer" id="eye-normal" alt="eye">
         <img src="eye_happy.png" class="eye-layer" id="eye-happy" alt="eye happy">
         
-        <!-- Зрачок (двигается) -->
+        <!-- Зрачки -->
         <div id="pupil-group">
-            <img src="pupil.png" id="pupil-img" alt="pupil">
-            <img src="pupil_happy.png" id="pupil-happy-img" alt="pupil happy">
+            <img src="pupil_two.png" id="pupil-big" class="pupil-img" alt="pupil big">
+            <img src="pupil.png" id="pupil-small" class="pupil-img" alt="pupil small">
+            <img src="pupil_happy_two.png" id="pupil-happy-big" class="pupil-img" alt="pupil happy big">
+            <img src="pupil_happy.png" id="pupil-happy-small" class="pupil-img" alt="pupil happy small">
         </div>
     </div>
 
@@ -151,19 +150,22 @@
             pupilGroup.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
         });
         
-        const forbiddenFolder = Array.from(document.querySelectorAll('.folder-link')).find(el => el.textContent.includes('ДОКУМЕНТЫ'));
-        const pupilImg = document.getElementById('pupil-img');
-        if (forbiddenFolder && pupilImg) {
+        // --- ЛОГИКА СУЖЕНИЯ (Наведение на ДОКУМЕНТЫ) ---
+        const forbiddenFolder = document.getElementById('folder-docs');
+        const pupilBig = document.getElementById('pupil-big');
+        const pupilSmall = document.getElementById('pupil-small');
+        
+        if (forbiddenFolder && pupilBig && pupilSmall) {
             forbiddenFolder.addEventListener('mouseenter', () => { 
                 if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
-                    pupilImg.style.transform = 'scale(0.5)'; 
-                    pupilImg.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
+                    pupilBig.style.display = 'none';
+                    pupilSmall.style.display = 'block';
                 }
             });
             forbiddenFolder.addEventListener('mouseleave', () => { 
                 if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
-                    pupilImg.style.transform = 'scale(1)'; 
-                    pupilImg.style.filter = 'none'; 
+                    pupilBig.style.display = 'block';
+                    pupilSmall.style.display = 'none';
                 }
             });
         }

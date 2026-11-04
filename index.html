@@ -31,18 +31,32 @@
         #user-input:disabled { color: #333; text-shadow: none; cursor: not-allowed; }
 
         /* ГЛАЗ (КОНТЕЙНЕР) */
-        #bob-eye-container { position: fixed; bottom: 70px; right: 20px; z-index: 20; pointer-events: none; opacity: 0.9; animation: pulse-glow 3s infinite alternate; transform: rotate(-5deg); transition: all 0.3s ease; width: 250px; height: 150px; }
+        #bob-eye-container { 
+            position: fixed; bottom: 70px; right: 20px; z-index: 20; 
+            pointer-events: none; opacity: 0.9; 
+            animation: pulse-glow 3s infinite alternate; 
+            transform: rotate(-5deg); transition: all 0.3s ease; 
+            width: 250px; height: 150px; 
+        }
         @keyframes pulse-glow { 0% { opacity: 0.7; filter: drop-shadow(0 0 5px #00ffff); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffff); } }
         
-        /* СЛОИ ГЛАЗА */
-        .eye-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; 
-            /* ДЕЛАЕМ ЛИНИИ ТОЛЩЕ И СВЕТЯЩИМИСЯ ЗА СЧЕТ ФИЛЬТРОВ */
-            filter: drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 5px #00ffff) brightness(1.5); 
+        /* СЛОИ ГЛАЗА (Картинки) */
+        .eye-layer { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; 
+            filter: drop-shadow(0 0 3px #00ffff) drop-shadow(0 0 8px #00ffff) brightness(1.5); 
         }
         
-        /* Зрачок (он будет двигаться) */
-        #pupil-group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.1s ease-out; display: flex; justify-content: center; align-items: center; }
-        #pupil-img { position: absolute; width: 30px; height: 30px; object-fit: contain; }
+        /* ЗРАЧОК (Жестко центрируем) */
+        #pupil-group { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            transition: transform 0.1s ease-out; 
+        }
+        #pupil-img { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 30px; height: 30px; 
+            margin-top: -15px; margin-left: -15px; 
+            object-fit: contain; 
+        }
 
         /* --- РЕЖИМ СОЗДАТЕЛЯ --- */
         .happy-mode #eye-normal { display: none !important; }
@@ -51,7 +65,13 @@
         .happy-mode #pupil-happy-img { display: block !important; }
 
         #eye-happy { display: none; }
-        #pupil-happy-img { display: none; position: absolute; width: 25px; height: 25px; object-fit: contain; animation: heart-beat 1s infinite alternate; }
+        #pupil-happy-img { 
+            display: none; position: absolute; top: 50%; left: 50%; 
+            width: 25px; height: 25px; 
+            margin-top: -12.5px; margin-left: -12.5px;
+            object-fit: contain; 
+            animation: heart-beat 1s infinite alternate; 
+        }
 
         @keyframes heart-beat {
             0% { transform: scale(1); }
@@ -117,9 +137,8 @@
             const eyeCenterY = eyeRect.top + eyeRect.height / 2;
             
             const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
-            // УМЕНЬШИЛИ АМПЛИТУДУ (было 50 и 20, стало 25 и 10)
-            const maxX = 25; 
-            const maxY = 10;
+            const maxX = 20; // Уменьшили амплитуду движения, чтобы зрачок не вылетал
+            const maxY = 8;
             
             pupilGroup.style.transform = `translate(${Math.cos(angle) * maxX}px, ${Math.sin(angle) * maxY}px)`;
         });
@@ -129,8 +148,8 @@
         if (forbiddenFolder && pupilImg) {
             forbiddenFolder.addEventListener('mouseenter', () => { 
                 if (!document.getElementById('bob-eye-container').classList.contains('happy-mode')) {
-                    pupilImg.style.transform = 'scale(0.5)'; // Сужаем зрачок
-                    pupilImg.style.filter = 'drop-shadow(0 0 10px #ff0000)'; // Краснеет
+                    pupilImg.style.transform = 'scale(0.5)'; 
+                    pupilImg.style.filter = 'drop-shadow(0 0 10px #ff0000)'; 
                 }
             });
             forbiddenFolder.addEventListener('mouseleave', () => { 
@@ -243,7 +262,5 @@
             }
         });
     </script>
-</body>
-</html>
 </body>
 </html>
